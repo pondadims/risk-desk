@@ -4,9 +4,9 @@ import { fmt } from '../lib/format.js'
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v))
 
 const VERDICT_CFG = {
-  safe:   { bg: 'transparent', text: '#0E2A47', border: '#0E2A47', icon: '✓', label: 'Safe',   copy: 'Your stop triggers first — comfortable buffer at this leverage.' },
-  tight:  { bg: 'transparent', text: '#0E2A47', border: '#0E2A47', icon: '!', label: 'Tight',  copy: 'Stop still triggers first, but only just. Consider reducing leverage.' },
-  danger: { bg: '#DC2626',     text: '#FFFFFF',  border: '#DC2626', icon: '✕', label: 'Danger', copy: 'Liquidation hits before your stop. You lose full margin. Lower the leverage.' },
+  safe:   { bg: 'rgba(255,255,255,.65)', text: '#0E2A47', border: 'rgba(14,42,71,.18)', icon: '✓', label: 'Safe',   copy: 'Your stop triggers first — comfortable buffer at this leverage.' },
+  tight:  { bg: 'rgba(255,255,255,.65)', text: '#0E2A47', border: 'rgba(14,42,71,.18)', icon: '!', label: 'Tight',  copy: 'Stop still triggers first, but only just. Consider reducing leverage.' },
+  danger: { bg: '#DC2626',               text: '#FFFFFF',  border: '#DC2626',           icon: '✕', label: 'Danger', copy: 'Liquidation hits before your stop. You lose full margin. Lower the leverage.' },
 }
 
 function Marker({ pct, color, label, value, reduced, bgColor, pillText }) {
@@ -20,7 +20,7 @@ function Marker({ pct, color, label, value, reduced, bgColor, pillText }) {
       {/* bubble */}
       <div className="absolute bottom-[calc(100%+8px)] whitespace-nowrap font-sans text-[10px] font-[600]
                       px-2 py-1 rounded-[7px] shadow-sm"
-           style={{ background: bubbleBg, color: bubbleText, border: `1.5px solid ${color}` }}>
+           style={{ background: bubbleBg, color: bubbleText }}>
         {label}{value ? ` ${value}` : ''}
         <span className="absolute left-1/2 -translate-x-1/2 -bottom-[5px] w-2 h-2 rotate-45"
               style={{ background: bubbleBg }} />
@@ -40,7 +40,7 @@ export default function LiquidationGauge({ slPct, liqMovePct, verdict, leverage 
 
   return (
     <div className="rounded-[16px] px-4 py-4"
-         style={{ background: 'transparent', border: '1.5px solid #0E2A47' }}>
+         style={{ background: 'rgba(255,255,255,.5)' }}>
       <div className="flex items-center justify-between mb-5">
         <span className="text-[11px] font-[600] uppercase tracking-wide text-muted">
           Liquidation vs stop
@@ -70,8 +70,8 @@ export default function LiquidationGauge({ slPct, liqMovePct, verdict, leverage 
                background: '#0E2A47',
              }} />
         <Marker pct={0}      color="rgba(14,42,71,.45)" label="Entry" value=""                         reduced={reduced} />
-        <Marker pct={slPos}  color="#0E2A47" bgColor="#F2BE00" pillText="#0E2A47" label="Stop"  value={fmt(slPct, 1) + '%'}      reduced={reduced} />
-        <Marker pct={liqPos} color="#0E2A47" bgColor="#F2BE00" pillText="#0E2A47" label="Liq"   value={fmt(liqMovePct, 1) + '%'} reduced={reduced} />
+        <Marker pct={slPos}  color="#0E2A47" bgColor="rgba(255,255,255,.8)" pillText="#0E2A47" label="Stop"  value={fmt(slPct, 1) + '%'}      reduced={reduced} />
+        <Marker pct={liqPos} color="#0E2A47" bgColor="rgba(255,255,255,.8)" pillText="#0E2A47" label="Liq"   value={fmt(liqMovePct, 1) + '%'} reduced={reduced} />
       </div>
 
       <p className="text-[12px] text-muted leading-relaxed mt-4 mb-0">{v.copy}</p>

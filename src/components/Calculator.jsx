@@ -181,7 +181,7 @@ function PairField({ value, onChange, onSelect, symbols }) {
                      px-3 shadow-input outline-none transition
                      focus:ring-2 focus:ring-[rgba(14,42,71,.15)]
                      placeholder:text-[rgba(14,42,71,.4)]"
-          style={{ border: '1.5px solid #0E2A47' }}
+          style={{ border: '1px solid rgba(14,42,71,.10)' }}
         />
         {showDropdown && (
           <ul
@@ -220,8 +220,7 @@ function Tile({ label, children, bg, textColor, wide }) {
     <div
       className={`rounded-[12px] px-3.5 py-3 ${wide ? 'col-span-2' : ''}`}
       style={{
-        background: 'transparent',
-        border: '1.5px solid #0E2A47',
+        background: 'rgba(255,255,255,.5)',
       }}>
       <div className="text-[9.5px] font-[700] uppercase tracking-[.08em] mb-1"
            style={{ color: textColor ? `${textColor}B3` : 'rgba(14,42,71,.5)' }}>
@@ -367,8 +366,8 @@ export default function Calculator({ account, onLog }) {
       <div className="px-5 pt-5 pb-3.5 border-b border-line flex items-center justify-between">
         <h2 className="font-display font-[700] text-[15px] text-ink2 m-0">Position size</h2>
         <div className="flex items-center gap-1.5 rounded-full px-2.5 py-1"
-             style={{ background: 'transparent', border: '1.5px solid #0E2A47' }}>
-          <span className="text-[10.5px] font-[600]" style={{ color: 'rgba(14,42,71,.55)' }}>from</span>
+             style={{ background: 'rgba(255,255,255,.5)' }}>
+          <span className="text-[10.5px] font-[600] text-muted">from</span>
           <span className="hero-num font-[700] text-[13.5px] text-ink tnum">{money(balance)}</span>
         </div>
       </div>
@@ -380,7 +379,7 @@ export default function Calculator({ account, onLog }) {
         <div className="px-5 pt-4 pb-5 space-y-3">
           {/* Direction toggle */}
           <div className="flex gap-1.5 p-1 rounded-[12px]"
-               style={{ background: 'transparent', border: '1.5px solid #0E2A47' }}
+               style={{ background: 'rgba(255,255,255,.45)' }}
                role="group" aria-label="Trade direction">
             {['Long', 'Short'].map((d) => {
               const on = dir === d
@@ -452,11 +451,10 @@ export default function Calculator({ account, onLog }) {
 
           {/* Leverage */}
           <div className="rounded-[12px] px-3.5 py-3"
-               style={{ background: 'transparent', border: '1.5px solid #0E2A47' }}>
+               style={{ background: 'rgba(255,255,255,.5)' }}>
             <div className="flex justify-between items-center mb-2.5">
               <label htmlFor="leverage-slider"
-                     className="text-[10.5px] font-[700] uppercase tracking-[.07em]"
-                     style={{ color: 'rgba(14,42,71,.55)' }}>
+                     className="text-[10.5px] font-[700] uppercase tracking-[.07em] text-muted">
                 Leverage
               </label>
               <span className="hero-num font-[700] text-[20px] text-ink tnum leading-none">
@@ -489,8 +487,8 @@ export default function Calculator({ account, onLog }) {
           {/* Tile grid */}
           <div className="grid grid-cols-2 gap-2">
             {/* Quantity — hero, floats directly on yellow */}
-            <div className="col-span-2 rounded-[12px] px-3.5 py-3 flex items-center justify-between"
-                 style={{ border: '1.5px solid #0E2A47' }}>
+            <div className="col-span-2 pb-3 mb-1 flex items-center justify-between"
+                 style={{ borderBottom: '1.5px solid rgba(242,190,0,.7)' }}>
               <div>
                 <div className="text-[9.5px] font-[700] uppercase tracking-[.09em] mb-1"
                      style={{ color: 'rgba(14,42,71,.55)' }}>
@@ -530,7 +528,7 @@ export default function Calculator({ account, onLog }) {
           </div>
 
           {/* Gauge — cream inset biar track/marker kebaca di atas kuning */}
-          <div style={{ borderRadius: '16px', border: '1.5px solid #0E2A47' }}>
+          <div style={{ borderRadius: '16px', background: 'rgba(255,255,255,.5)' }}>
             <LiquidationGauge slPct={c.slPct} liqMovePct={c.liqMovePct} verdict={c.verdict} leverage={f.leverage} />
           </div>
 
@@ -548,7 +546,7 @@ export default function Calculator({ account, onLog }) {
               whileTap={reduced || !canLog ? {} : { scale: 0.97 }}
               style={canLog
                 ? { background: '#0E2A47' }
-                : { background: 'transparent', border: '1.5px solid #0E2A47', color: 'rgba(14,42,71,.45)' }}
+                : { background: 'rgba(255,255,255,.45)', color: 'rgba(14,42,71,.45)' }}
               className={`w-full h-12 rounded-full font-sans font-[700] text-[14.5px]
                            flex items-center justify-center gap-2 transition-all
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-yellow
