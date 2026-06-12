@@ -40,7 +40,7 @@ export default function LiquidationGauge({ slPct, liqMovePct, verdict, leverage 
 
   return (
     <div className="rounded-[16px] px-4 py-4"
-         style={{ background: 'rgba(255,255,255,.5)' }}>
+         style={{ background: 'rgba(255,255,255,.5)', border: '1px solid rgba(14,42,71,.2)' }}>
       <div className="flex items-center justify-between mb-5">
         <span className="text-[11px] font-[600] uppercase tracking-wide text-muted">
           Liquidation vs stop

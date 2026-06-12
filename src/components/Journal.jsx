@@ -51,7 +51,8 @@ function MobileCard({ t, onCycle, onPL, onDelete, reduced }) {
       animate={{ opacity: 1, y: 0 }}
       exit={reduced ? {} : { opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}
       transition={{ duration: 0.24, ease: 'easeOut' }}
-      className="bg-white border border-line rounded-[16px] p-4 flex flex-col gap-3 shadow-[0_1px_4px_rgba(14,42,71,.06)]">
+      className="bg-white rounded-[16px] p-4 flex flex-col gap-3 shadow-[0_1px_4px_rgba(14,42,71,.06)]"
+      style={{ border: '1px solid rgba(14,42,71,.2)' }}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="font-display font-[700] text-[15px] text-ink2">{t.pair}</span>
@@ -176,7 +177,8 @@ export default function Journal({ trades, stats, onCycle, onPL, onDelete, onClea
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.38, delay: 0.16, ease: 'easeOut' }}
       whileHover={reduced ? {} : { y: -2, boxShadow: '0 1px 3px rgba(14,42,71,.08), 0 20px 40px -14px rgba(14,42,71,.22)' }}
-      className="bg-card rounded-cardLg border border-line shadow-card overflow-hidden min-h-[540px]">
+      style={{ border: '1px solid rgba(14,42,71,.2)' }}
+      className="bg-card rounded-cardLg shadow-card overflow-hidden min-h-[540px]">
 
       {/* header */}
       <div className="px-6 pt-5 pb-4 border-b border-line flex items-center justify-between">

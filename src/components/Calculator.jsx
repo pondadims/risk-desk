@@ -221,6 +221,7 @@ function Tile({ label, children, bg, textColor, wide }) {
       className={`rounded-[12px] px-3.5 py-3 ${wide ? 'col-span-2' : ''}`}
       style={{
         background: 'rgba(255,255,255,.5)',
+        border: '1px solid rgba(14,42,71,.2)',
       }}>
       <div className="text-[9.5px] font-[700] uppercase tracking-[.08em] mb-1"
            style={{ color: textColor ? `${textColor}B3` : 'rgba(14,42,71,.5)' }}>
@@ -360,13 +361,14 @@ export default function Calculator({ account, onLog }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.38, delay: 0.08, ease: 'easeOut' }}
       whileHover={reduced ? {} : { y: -2, boxShadow: '0 1px 3px rgba(14,42,71,.08), 0 20px 40px -14px rgba(14,42,71,.22)' }}
-      className="bg-yellow rounded-cardLg border border-[#F2BE00]/50 shadow-card overflow-hidden">
+      style={{ border: '1px solid rgba(14,42,71,.2)' }}
+      className="bg-yellow rounded-cardLg shadow-card overflow-hidden">
 
       {/* ── Header ── */}
       <div className="px-5 pt-5 pb-3.5 border-b border-line flex items-center justify-between">
         <h2 className="font-display font-[700] text-[15px] text-ink2 m-0">Position size</h2>
         <div className="flex items-center gap-1.5 rounded-full px-2.5 py-1"
-             style={{ background: 'rgba(255,255,255,.5)' }}>
+             style={{ background: 'rgba(255,255,255,.5)', border: '1px solid rgba(14,42,71,.2)' }}>
           <span className="text-[10.5px] font-[600] text-muted">from</span>
           <span className="hero-num font-[700] text-[13.5px] text-ink tnum">{money(balance)}</span>
         </div>
@@ -379,7 +381,7 @@ export default function Calculator({ account, onLog }) {
         <div className="px-5 pt-4 pb-5 space-y-3">
           {/* Direction toggle */}
           <div className="flex gap-1.5 p-1 rounded-[12px]"
-               style={{ background: 'rgba(255,255,255,.45)' }}
+               style={{ background: 'rgba(255,255,255,.45)', border: '1px solid rgba(14,42,71,.2)' }}
                role="group" aria-label="Trade direction">
             {['Long', 'Short'].map((d) => {
               const on = dir === d
@@ -451,7 +453,7 @@ export default function Calculator({ account, onLog }) {
 
           {/* Leverage */}
           <div className="rounded-[12px] px-3.5 py-3"
-               style={{ background: 'rgba(255,255,255,.5)' }}>
+               style={{ background: 'rgba(255,255,255,.5)', border: '1px solid rgba(14,42,71,.2)' }}>
             <div className="flex justify-between items-center mb-2.5">
               <label htmlFor="leverage-slider"
                      className="text-[10.5px] font-[700] uppercase tracking-[.07em] text-muted">
@@ -528,7 +530,7 @@ export default function Calculator({ account, onLog }) {
           </div>
 
           {/* Gauge — cream inset biar track/marker kebaca di atas kuning */}
-          <div style={{ borderRadius: '16px', background: 'rgba(255,255,255,.5)' }}>
+          <div style={{ borderRadius: '16px', background: 'rgba(255,255,255,.5)', border: '1px solid rgba(14,42,71,.2)' }}>
             <LiquidationGauge slPct={c.slPct} liqMovePct={c.liqMovePct} verdict={c.verdict} leverage={f.leverage} />
           </div>
 
