@@ -125,10 +125,11 @@ function MobileCard({ t, onCycle, onPL, onDelete, reduced }) {
 }
 
 /* ── Desktop table row ───────────────────────────── */
-function DesktopRow({ t, onCycle, onPL, onDelete, reduced }) {
+function DesktopRow({ t, onCycle, onPL, onDelete, reduced, index }) {
   const pl   = t.pl === '' || t.pl == null ? '' : parseFloat(t.pl)
   const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(t.status) + 1) % STATUS_CYCLE.length]
   const ss   = STATUS_STYLE[t.status] || STATUS_STYLE.Pending
+  const rowBg = index % 2 === 0 ? 'rgba(255,255,255,.3)' : 'transparent'
 
   return (
     <motion.tr
@@ -137,8 +138,9 @@ function DesktopRow({ t, onCycle, onPL, onDelete, reduced }) {
       animate={{ opacity: 1, y: 0 }}
       exit={reduced ? {} : { opacity: 0, transition: { duration: 0.16 } }}
       transition={{ duration: 0.22, ease: 'easeOut' }}
-      className="hover:bg-[rgba(255,255,255,.2)] transition [&>td]:py-4 [&>td]:px-5
-                 [&>td]:border-b [&>td]:border-[rgba(242,190,0,.45)] [&>td]:whitespace-nowrap">
+      style={{ background: rowBg }}
+      className="hover:bg-[rgba(255,255,255,.5)] transition [&>td]:py-4 [&>td]:px-5
+                 [&>td]:border-b [&>td]:border-[rgba(242,190,0,.4)] [&>td]:whitespace-nowrap">
       <td className="text-[11.5px] font-sans" style={{ color: 'rgba(14,42,71,.6)' }}>
         {new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
       </td>
@@ -227,10 +229,10 @@ export default function Journal({ trades, stats, onCycle, onPL, onDelete, onClea
           { k: 'Avg R',    v: stats.avgRText },
         ].map(({ k, v }) => (
           <div key={k} className="rounded-[10px] px-3 py-2.5 text-center"
-               style={{ background: 'rgba(255,255,255,.5)' }}>
+               style={{ background: '#0E2A47' }}>
             <div className="text-[9px] font-[700] uppercase tracking-[.1em] mb-1"
-                 style={{ color: 'rgba(14,42,71,.55)' }}>{k}</div>
-            <div className="hero-num font-[700] text-[16px] tnum text-ink">{v}</div>
+                 style={{ color: '#8FB4D6' }}>{k}</div>
+            <div className="hero-num font-[700] text-[16px] tnum" style={{ color: '#FFFFFF' }}>{v}</div>
           </div>
         ))}
       </div>
@@ -296,25 +298,22 @@ export default function Journal({ trades, stats, onCycle, onPL, onDelete, onClea
               <thead>
                 <tr className="[&>th]:py-3 [&>th]:px-5 [&>th]:font-sans [&>th]:font-[700]
                                [&>th]:text-[9.5px] [&>th]:tracking-[.1em] [&>th]:uppercase [&>th]:text-left"
-                    style={{
-                      background: 'rgba(255,255,255,.3)',
-                      borderBottom: '1px solid rgba(242,190,0,.5)',
-                    }}>
-                  <th style={{ color: 'rgba(14,42,71,.6)' }}>Date</th>
-                  <th style={{ color: 'rgba(14,42,71,.6)' }}>Pair</th>
-                  <th style={{ color: 'rgba(14,42,71,.6)' }}>Dir</th>
-                  <th className="text-right" style={{ color: 'rgba(14,42,71,.6)' }}>Entry</th>
-                  <th className="text-right" style={{ color: 'rgba(14,42,71,.6)' }}>Lev</th>
-                  <th className="text-right" style={{ color: 'rgba(14,42,71,.6)' }}>Pos $</th>
-                  <th style={{ color: 'rgba(14,42,71,.6)' }}>Status</th>
-                  <th className="text-right" style={{ color: 'rgba(14,42,71,.6)' }}>P&L</th>
+                    style={{ background: '#0E2A47' }}>
+                  <th style={{ color: 'rgba(255,255,255,.7)' }}>Date</th>
+                  <th style={{ color: 'rgba(255,255,255,.7)' }}>Pair</th>
+                  <th style={{ color: 'rgba(255,255,255,.7)' }}>Dir</th>
+                  <th className="text-right" style={{ color: 'rgba(255,255,255,.7)' }}>Entry</th>
+                  <th className="text-right" style={{ color: 'rgba(255,255,255,.7)' }}>Lev</th>
+                  <th className="text-right" style={{ color: 'rgba(255,255,255,.7)' }}>Pos $</th>
+                  <th style={{ color: 'rgba(255,255,255,.7)' }}>Status</th>
+                  <th className="text-right" style={{ color: 'rgba(255,255,255,.7)' }}>P&L</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
                 <AnimatePresence initial={false}>
-                  {trades.map((t) => (
-                    <DesktopRow key={t.id} t={t} onCycle={onCycle} onPL={onPL} onDelete={onDelete} reduced={reduced} />
+                  {trades.map((t, i) => (
+                    <DesktopRow key={t.id} t={t} onCycle={onCycle} onPL={onPL} onDelete={onDelete} reduced={reduced} index={i} />
                   ))}
                 </AnimatePresence>
               </tbody>
