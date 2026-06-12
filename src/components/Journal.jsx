@@ -5,11 +5,11 @@ import { useCountUp } from '../hooks/useCountUp.js'
 
 const STATUS_CYCLE = ['Pending', 'Open', 'Win', 'Loss', 'BE']
 const STATUS_STYLE = {
-  Pending: { bg: '#FFF0A8', text: '#92680A', border: '#F2BE00' },
-  Open:    { bg: '#D0EDFB', text: '#0A78BE', border: '#2BB5EF' },
-  Win:     { bg: '#DCFCE7', text: '#15803D', border: '#86EFAC' },
-  Loss:    { bg: '#FEE2E2', text: '#B91C1C', border: '#FCA5A5' },
-  BE:      { bg: '#F1F5F9', text: '#64748B', border: '#CBD5E1' },
+  Pending: { bg: '#FFD43B', text: '#0C2340', border: '#F2BE00' },
+  Open:    { bg: '#2BB5EF', text: '#FFFFFF', border: '#0A78BE' },
+  Win:     { bg: '#16A34A', text: '#FFFFFF', border: '#15803D' },
+  Loss:    { bg: '#DC2626', text: '#FFFFFF', border: '#B91C1C' },
+  BE:      { bg: '#64748B', text: '#FFFFFF', border: '#475569' },
 }
 
 function AnimatedMoney({ value }) {
@@ -118,24 +118,28 @@ function DesktopRow({ t, onCycle, onPL, onDelete, reduced }) {
       animate={{ opacity: 1, y: 0 }}
       exit={reduced ? {} : { opacity: 0, transition: { duration: 0.16 } }}
       transition={{ duration: 0.22, ease: 'easeOut' }}
-      className="hover:bg-paper/70 transition [&>td]:py-3.5 [&>td]:px-4 [&>td]:border-b [&>td]:border-line [&>td]:whitespace-nowrap">
-      <td className="text-[12px] text-muted font-sans">
+      className="hover:bg-blueSoft/25 transition [&>td]:py-4 [&>td]:px-5 [&>td]:border-b [&>td]:border-line [&>td]:whitespace-nowrap">
+      <td className="text-[11.5px] text-muted font-sans">
         {new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
       </td>
-      <td className="font-display font-[700] text-[13.5px] text-ink2">{t.pair}</td>
+      <td className="font-display font-[700] text-[13px] text-ink2">{t.pair}</td>
       <td>
-        <span className={`text-[11px] font-[600] px-2.5 py-0.5 rounded-full text-white
+        <span className={`text-[10.5px] font-[700] px-2.5 py-[3px] rounded-full text-white
                           ${t.direction === 'Long' ? 'bg-long' : 'bg-short'}`}>
           {t.direction}
         </span>
       </td>
-      <td className="text-right font-sans text-[12.5px] text-ink">{fmt(Number(t.entry), entryDecimals(t.entry))}</td>
-      <td className="text-right font-sans text-[12.5px] text-muted">{t.leverage}×</td>
-      <td className="text-right font-sans text-[12.5px] text-ink">${fmt(Number(t.position), 2)}</td>
+      <td className="text-right font-sans font-[600] text-[12.5px] text-ink tnum">
+        {fmt(Number(t.entry), entryDecimals(t.entry))}
+      </td>
+      <td className="text-right font-sans text-[12.5px] text-muted tnum">{t.leverage}×</td>
+      <td className="text-right font-sans font-[600] text-[12.5px] text-ink tnum">
+        ${fmt(Number(t.position), 2)}
+      </td>
       <td>
         <motion.button whileTap={reduced ? {} : { scale: 0.95 }}
           onClick={() => onCycle(t.id, next)}
-          className="font-[600] text-[11px] px-3 py-1 rounded-full border cursor-pointer transition min-h-[28px]
+          className="font-[600] text-[11px] px-3 py-1.5 rounded-full border cursor-pointer transition
                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue"
           style={{ background: ss.bg, color: ss.text, borderColor: ss.border }}>
           {t.status}
@@ -144,8 +148,8 @@ function DesktopRow({ t, onCycle, onPL, onDelete, reduced }) {
       <td className="text-right">
         <input defaultValue={pl === '' ? '' : pl} placeholder="—" aria-label="P&L"
           onBlur={(e) => onPL(t.id, e.target.value)}
-          className={`w-20 h-8 bg-paper border border-line rounded-[8px] font-sans font-[600] text-[12.5px]
-                      px-2.5 text-right outline-none focus:border-blue focus:ring-2 focus:ring-blue/20 ${plColor}`} />
+          className={`w-24 h-8 bg-paper border border-line rounded-[8px] font-sans font-[600] text-[12.5px]
+                      px-2.5 text-right outline-none focus:border-blue focus:ring-2 focus:ring-blue/20 tnum ${plColor}`} />
       </td>
       <td>
         <motion.button whileTap={reduced ? {} : { scale: 0.9 }}
@@ -172,25 +176,32 @@ export default function Journal({ trades, stats, onCycle, onPL, onDelete, onClea
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.38, delay: 0.16, ease: 'easeOut' }}
       whileHover={reduced ? {} : { y: -2, boxShadow: '0 1px 3px rgba(14,42,71,.08), 0 20px 40px -14px rgba(14,42,71,.22)' }}
-      className="bg-card rounded-cardLg border border-line shadow-card overflow-hidden min-h-[520px]">
+      className="bg-card rounded-cardLg border border-line shadow-card overflow-hidden min-h-[540px]">
 
       {/* header */}
-      <div className="px-6 pt-6 pb-4 border-b border-line flex items-center justify-between">
-        <h2 className="font-display font-[700] text-[16px] text-ink2 m-0">Trade journal</h2>
-        <span className="text-[12px] font-[500] text-muted">{stats.count} trade{stats.count !== 1 ? 's' : ''}</span>
+      <div className="px-6 pt-5 pb-4 border-b border-line flex items-center justify-between">
+        <h2 className="font-display font-[700] text-[15px] text-ink2 m-0">Trade journal</h2>
+        <span className="text-[11.5px] font-[500] text-muted tabular-nums">
+          {stats.count} trade{stats.count !== 1 ? 's' : ''}
+        </span>
       </div>
 
-      {/* stats row */}
-      <div className="grid grid-cols-4 gap-2 px-6 pt-4 pb-3">
+      {/* stats row — light cards, blue top accent = same family as header/hover */}
+      <div className="grid grid-cols-4 gap-2 px-6 mt-4 mb-3">
         {[
-          { k: 'Trades',   v: stats.count,       c: 'text-ink',    raw: stats.count },
-          { k: 'Win rate', v: stats.winRateText,  c: stats.count > 0 ? 'text-profit' : 'text-muted' },
-          { k: 'Net P&L',  v: stats.netText,      c: stats.netPositive ? 'text-profit' : stats.netNegative ? 'text-loss' : 'text-ink' },
-          { k: 'Avg R',    v: stats.avgRText,     c: stats.avgRPositive ? 'text-profit' : 'text-ink' },
-        ].map(({ k, v, c }) => (
-          <div key={k} className="bg-paper border border-line rounded-[12px] px-3 py-2.5 text-center">
-            <div className="text-[10px] font-[600] uppercase tracking-wide text-muted">{k}</div>
-            <div className={`hero-num font-[700] text-[15px] tnum mt-0.5 ${c}`}>{v}</div>
+          { k: 'Trades',   v: stats.count,      color: '#0C2340' },
+          { k: 'Win rate', v: stats.winRateText, color: stats.count > 0 ? '#16A34A' : '#5B7A99' },
+          { k: 'Net P&L',  v: stats.netText,     color: stats.netPositive ? '#16A34A' : stats.netNegative ? '#DC2626' : '#0C2340' },
+          { k: 'Avg R',    v: stats.avgRText,    color: stats.avgRPositive ? '#16A34A' : '#0C2340' },
+        ].map(({ k, v, color }) => (
+          <div key={k} className="rounded-[10px] px-3 py-2.5 text-center bg-white"
+               style={{
+                 border: '1px solid #D8EAF6',
+                 borderTop: '2.5px solid #2BB5EF',
+                 boxShadow: '0 1px 3px rgba(14,42,71,.05)',
+               }}>
+            <div className="text-[9px] font-[700] uppercase tracking-[.1em] mb-1 text-muted">{k}</div>
+            <div className="hero-num font-[700] text-[16px] tnum" style={{ color }}>{v}</div>
           </div>
         ))}
       </div>
@@ -199,21 +210,21 @@ export default function Journal({ trades, stats, onCycle, onPL, onDelete, onClea
       <div className="flex gap-2 px-6 pb-4 flex-wrap">
         <motion.button whileTap={reduced ? {} : { scale: 0.97 }}
           onClick={() => exportCSV(trades, notify)}
-          className="flex items-center gap-1.5 h-9 px-4 rounded-full border border-line bg-paper
-                     text-[12.5px] font-[600] text-muted cursor-pointer transition
+          className="flex items-center gap-1.5 h-8 px-3.5 rounded-full border border-line bg-paper
+                     text-[12px] font-[600] text-muted cursor-pointer transition
                      hover:border-blueInk/40 hover:text-blueInk hover:bg-blueSoft
                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" /></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" /></svg>
           Export CSV
         </motion.button>
         <div className="flex-1" />
         <motion.button whileTap={reduced ? {} : { scale: 0.97 }}
           onClick={onClear}
-          className="flex items-center gap-1.5 h-9 px-4 rounded-full border border-line bg-paper
-                     text-[12.5px] font-[600] text-muted cursor-pointer transition
+          className="flex items-center gap-1.5 h-8 px-3.5 rounded-full border border-line bg-paper
+                     text-[12px] font-[600] text-muted cursor-pointer transition
                      hover:border-red-200 hover:text-loss hover:bg-lossSoft
                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-loss">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /></svg>
           Clear all
         </motion.button>
       </div>
@@ -247,11 +258,12 @@ export default function Journal({ trades, stats, onCycle, onPL, onDelete, onClea
 
           {/* Desktop table */}
           <div className="hidden lg:block overflow-x-auto pb-2">
-            <table className="w-full border-collapse min-w-[600px]">
+            <table className="w-full border-collapse min-w-[640px]">
               <thead>
-                <tr className="[&>th]:py-2.5 [&>th]:px-4 [&>th]:border-b [&>th]:border-line
-                               [&>th]:font-sans [&>th]:font-[600] [&>th]:text-[10.5px]
-                               [&>th]:tracking-wide [&>th]:uppercase [&>th]:text-muted [&>th]:text-left bg-paper/50">
+                <tr className="[&>th]:py-3 [&>th]:px-5 [&>th]:border-b [&>th]:border-line
+                               [&>th]:font-sans [&>th]:font-[700] [&>th]:text-[9.5px]
+                               [&>th]:tracking-[.1em] [&>th]:uppercase [&>th]:text-ink2 [&>th]:text-left"
+                    style={{ background: 'rgba(43,181,239,.10)' }}>
                   <th>Date</th><th>Pair</th><th>Dir</th>
                   <th className="text-right">Entry</th>
                   <th className="text-right">Lev</th>

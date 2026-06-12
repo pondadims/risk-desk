@@ -6,6 +6,20 @@ import { fmt, money } from '../lib/format.js'
 import { useCountUp } from '../hooks/useCountUp.js'
 import LiquidationGauge from './LiquidationGauge.jsx'
 
+// ── Symbol list (for pair autocomplete) ───────────────────────────────────────
+function useSymbols() {
+  const [symbols, setSymbols] = useState([])
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/symbols')
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((data) => { if (!cancelled && Array.isArray(data)) setSymbols(data) })
+      .catch(() => {}) // silent — field works as free-text fallback
+    return () => { cancelled = true }
+  }, [])
+  return symbols
+}
+
 const INIT = { pair: '', riskPct: '', entry: '', sl: '', tp: '', leverage: 5 }
 
 // ── Entry ownership ────────────────────────────────────────────────────────────
@@ -64,23 +78,23 @@ function Num({ value, decimals = 2, prefix = '' }) {
 
 function Field({ label, hint, suffix, id, action, ...props }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-1">
       <label htmlFor={id}
-        className="text-[11px] font-[600] uppercase tracking-wide text-muted flex justify-between items-center">
+        className="text-[10.5px] font-[600] uppercase tracking-[.07em] text-muted flex justify-between items-center">
         <span>{label}</span>
         <span className="flex items-center gap-1.5">
-          {hint && <span className="normal-case tracking-normal font-[500] text-muted/60">{hint}</span>}
+          {hint && <span className="normal-case tracking-normal font-[500] text-muted/55">{hint}</span>}
           {action}
         </span>
       </label>
       <div className="relative">
         <input id={id} {...props}
-          className="w-full h-11 bg-white border border-line rounded-[12px] text-ink font-sans font-[600] text-[15px]
-                     px-3.5 shadow-input outline-none transition
-                     focus:border-blue focus:ring-2 focus:ring-blue/25
-                     placeholder:text-muted/35" />
+          className="w-full h-10 bg-white border border-line rounded-[10px] text-ink font-sans font-[600] text-[14px]
+                     px-3 shadow-input outline-none transition
+                     focus:border-blue focus:ring-2 focus:ring-blue/20
+                     placeholder:text-muted/30" />
         {suffix && (
-          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted text-[12px] pointer-events-none">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted text-[11.5px] pointer-events-none">
             {suffix}
           </span>
         )}
@@ -89,17 +103,129 @@ function Field({ label, hint, suffix, id, action, ...props }) {
   )
 }
 
-function Tile({ label, children, bg, border, wide }) {
+// ── Pair combobox ─────────────────────────────────────────────────────────────
+function PairField({ value, onChange, onSelect, symbols }) {
+  const [open, setOpen]       = useState(false)
+  const [active, setActive]   = useState(-1)
+  const containerRef          = useRef(null)
+  const listRef               = useRef(null)
+  const inputId               = 'f-pair'
+
+  const filtered = useMemo(() => {
+    if (!symbols.length || !value.trim()) return []
+    const q = value.trim().toLowerCase()
+    return symbols
+      .filter((s) => s.symbol.toLowerCase().includes(q) || s.baseCoin.toLowerCase().includes(q))
+      .slice(0, 8)
+  }, [symbols, value])
+
+  // Close on outside click
+  useEffect(() => {
+    function down(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false); setActive(-1)
+      }
+    }
+    document.addEventListener('mousedown', down)
+    return () => document.removeEventListener('mousedown', down)
+  }, [])
+
+  // Scroll active item into view
+  useEffect(() => {
+    if (active >= 0 && listRef.current) {
+      const el = listRef.current.children[active]
+      el?.scrollIntoView({ block: 'nearest' })
+    }
+  }, [active])
+
+  function handleKeyDown(e) {
+    if (!open || !filtered.length) return
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActive((a) => Math.min(a + 1, filtered.length - 1)) }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)) }
+    else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); select(filtered[active].symbol) }
+    else if (e.key === 'Escape') { setOpen(false); setActive(-1) }
+  }
+
+  function select(sym) {
+    ;(onSelect ?? onChange)(sym)
+    setOpen(false); setActive(-1)
+  }
+
+  const showDropdown = open && filtered.length > 0
+
   return (
-    <div className={`rounded-[14px] px-4 py-3.5 ${wide ? 'col-span-2' : ''}`}
-         style={{
-           background: bg,
-           borderLeft: `3px solid ${border}`,
-           outline: '1px solid rgba(14,42,71,.07)',
-           outlineOffset: '-1px',
-         }}>
-      <div className="text-[10.5px] font-[600] uppercase tracking-wide text-muted/80 mb-1">{label}</div>
-      <div className="hero-num font-[700] text-[21px] leading-none tnum text-ink">{children}</div>
+    <div ref={containerRef} className="col-span-2 flex flex-col gap-1">
+      <label htmlFor={inputId}
+        className="text-[10.5px] font-[600] uppercase tracking-[.07em] text-muted">
+        Pair
+      </label>
+      <div className="relative">
+        <input
+          id={inputId}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={showDropdown}
+          aria-controls="pair-listbox"
+          aria-activedescendant={active >= 0 ? `pair-opt-${active}` : undefined}
+          autoComplete="off"
+          placeholder="e.g. BTCUSDT"
+          value={value}
+          onChange={(e) => { onChange(e.target.value); setOpen(true); setActive(-1) }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={handleKeyDown}
+          className="w-full h-10 bg-white border border-line rounded-[10px] text-ink font-sans font-[600] text-[14px]
+                     px-3 shadow-input outline-none transition
+                     focus:border-blue focus:ring-2 focus:ring-blue/20
+                     placeholder:text-muted/30"
+        />
+        {showDropdown && (
+          <ul
+            id="pair-listbox"
+            role="listbox"
+            ref={listRef}
+            className="absolute z-50 left-0 right-0 top-[calc(100%+4px)]
+                       bg-white border border-line rounded-[12px] shadow-card
+                       max-h-[240px] overflow-y-auto py-1"
+          >
+            {filtered.map((s, i) => (
+              <li
+                key={s.symbol}
+                id={`pair-opt-${i}`}
+                role="option"
+                aria-selected={i === active}
+                onMouseDown={(e) => { e.preventDefault(); select(s.symbol) }}
+                onMouseEnter={() => setActive(i)}
+                className={`flex items-center justify-between px-3.5 py-2.5 cursor-pointer
+                             font-sans text-[13.5px] select-none
+                             ${i === active ? 'bg-blueSoft text-blueInk' : 'text-ink hover:bg-paper'}`}
+              >
+                <span className="font-[700]">{s.symbol}</span>
+                <span className="text-muted text-[11.5px]">{s.baseCoin}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function Tile({ label, children, bg, textColor, wide }) {
+  return (
+    <div
+      className={`rounded-[12px] px-3.5 py-3 ${wide ? 'col-span-2' : ''}`}
+      style={{
+        background: bg,
+        boxShadow: '0 1px 4px rgba(14,42,71,.14)',
+      }}>
+      <div className="text-[9.5px] font-[700] uppercase tracking-[.08em] mb-1"
+           style={{ color: textColor ? `${textColor}B3` : 'rgba(14,42,71,.5)' }}>
+        {label}
+      </div>
+      <div className="hero-num font-[700] text-[19px] leading-none tnum"
+           style={{ color: textColor || '#0E2A47' }}>
+        {children}
+      </div>
     </div>
   )
 }
@@ -107,11 +233,11 @@ function Tile({ label, children, bg, border, wide }) {
 function Warnings({ warnings }) {
   if (!warnings?.length) return null
   return (
-    <div className="rounded-[12px] border border-[#F2BE00]/60 bg-[#FFF9E6] px-4 py-3 flex gap-3 items-start">
-      <span className="text-[#92680A] text-[16px] shrink-0 mt-0.5">⚠</span>
+    <div className="rounded-[12px] border border-[#F2BE00] bg-white px-4 py-3 flex gap-3 items-start">
+      <span className="text-ink text-[16px] shrink-0 mt-0.5">⚠</span>
       <ul className="m-0 p-0 list-none flex flex-col gap-1">
         {warnings.map((w, i) => (
-          <li key={i} className="text-[12.5px] font-[500] text-[#7A5200] leading-snug">{w}</li>
+          <li key={i} className="text-[12.5px] font-[500] text-ink leading-snug">{w}</li>
         ))}
       </ul>
     </div>
@@ -125,6 +251,7 @@ export default function Calculator({ account, onLog }) {
   const [dir, setDir] = useState('Long')
   const priceFetcher  = usePriceFetcher()
   const debounceRef   = useRef(null)
+  const symbols       = useSymbols()
 
   // 'auto' = field is free to be prefilled by a fetch result
   // 'user' = user owns this value; only explicit ↻ tap may change it
@@ -142,17 +269,24 @@ export default function Calculator({ account, onLog }) {
   }, [priceFetcher.price]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Input handlers ────────────────────────────────────────────────────────
-  const handlePairChange = useCallback((e) => {
-    const newPair = e.target.value
-    // Reset entry ownership and clear the field — a new pair legitimately prefills
+  const applyPair = useCallback((newPair, immediate = false) => {
     entryOwner.current = 'auto'
     setF((p) => ({ ...p, pair: newPair, entry: '' }))
-    // Debounced fetch: restart the timer on every keystroke
     clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
+    if (immediate) {
       priceFetcher.fetchPrice(newPair)
-    }, 500)
+    } else {
+      debounceRef.current = setTimeout(() => priceFetcher.fetchPrice(newPair), 500)
+    }
   }, [priceFetcher.fetchPrice])
+
+  const handlePairChange = useCallback((newPair) => {
+    applyPair(newPair, false)
+  }, [applyPair])
+
+  const handlePairSelect = useCallback((sym) => {
+    applyPair(sym, true)
+  }, [applyPair])
 
   const handleEntryChange = useCallback((e) => {
     // User is now the owner — auto-fetch must never overwrite this
@@ -222,173 +356,206 @@ export default function Calculator({ account, onLog }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.38, delay: 0.08, ease: 'easeOut' }}
       whileHover={reduced ? {} : { y: -2, boxShadow: '0 1px 3px rgba(14,42,71,.08), 0 20px 40px -14px rgba(14,42,71,.22)' }}
-      className="bg-card rounded-cardLg border border-line shadow-card overflow-hidden">
+      className="bg-yellow rounded-cardLg border border-[#F2BE00]/50 shadow-card overflow-hidden">
 
       {/* ── Header ── */}
-      <div className="px-6 pt-6 pb-4 border-b border-line flex items-center justify-between">
-        <h2 className="font-display font-[700] text-[16px] text-ink2 m-0">Position size</h2>
-        <div className="flex items-center gap-2 bg-ink/[.04] rounded-full px-3 py-1.5">
-          <span className="text-[11px] font-[600] text-muted">Sizing from</span>
-          <span className="hero-num font-[700] text-[14px] text-ink tnum">{money(balance)}</span>
+      <div className="px-5 pt-5 pb-3.5 border-b border-line flex items-center justify-between">
+        <h2 className="font-display font-[700] text-[15px] text-ink2 m-0">Position size</h2>
+        <div className="flex items-center gap-1.5 rounded-full px-2.5 py-1"
+             style={{ background: 'rgba(255,255,255,0.5)' }}>
+          <span className="text-[10.5px] font-[600] text-muted">from</span>
+          <span className="hero-num font-[700] text-[13.5px] text-ink tnum">{money(balance)}</span>
         </div>
       </div>
 
-      <div className="px-6 pt-5 pb-2 space-y-4">
-        {/* ── Direction toggle ── */}
-        <div className="flex gap-2 p-1 bg-paper rounded-[14px] border border-line"
-             role="group" aria-label="Trade direction">
-          {['Long', 'Short'].map((d) => {
-            const on = dir === d
-            return (
-              <motion.button key={d} onClick={() => setDir(d)}
-                whileTap={reduced ? {} : { scale: 0.96 }}
-                className={`flex-1 h-11 rounded-[11px] font-sans font-[600] text-[14px] cursor-pointer transition-all
-                             flex items-center justify-center gap-2
-                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-1
-                             ${on
-                               ? d === 'Long'
-                                 ? 'bg-blue text-white shadow-[0_4px_14px_-4px_rgba(43,181,239,.55)]'
-                                 : 'bg-short text-white shadow-[0_4px_14px_-4px_rgba(245,92,122,.5)]'
-                               : 'text-muted hover:text-ink'}`}>
-                <span className={`w-2 h-2 rounded-full bg-current transition-opacity ${on ? 'opacity-100' : 'opacity-30'}`} />
-                {d}
-              </motion.button>
-            )
-          })}
+      {/* ── 2-col body: inputs | results+gauge+log — collapses to single column on mobile ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 divide-y divide-[#F2BE00]/60 lg:divide-y-0 lg:divide-x">
+
+        {/* ── Col 1: Inputs ── */}
+        <div className="px-5 pt-4 pb-5 space-y-3">
+          {/* Direction toggle */}
+          <div className="flex gap-1.5 p-1 rounded-[12px] border border-[#F2BE00]/60"
+               style={{ background: 'rgba(255,255,255,0.5)' }}
+               role="group" aria-label="Trade direction">
+            {['Long', 'Short'].map((d) => {
+              const on = dir === d
+              return (
+                <motion.button key={d} onClick={() => setDir(d)}
+                  whileTap={reduced ? {} : { scale: 0.96 }}
+                  className={`flex-1 h-10 rounded-[9px] font-sans font-[700] text-[13.5px] cursor-pointer transition-all
+                               flex items-center justify-center gap-2
+                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-1
+                               ${on
+                                 ? d === 'Long'
+                                   ? 'bg-blue text-white shadow-[0_3px_12px_-3px_rgba(43,181,239,.6)]'
+                                   : 'bg-short text-white shadow-[0_3px_12px_-3px_rgba(245,92,122,.55)]'
+                                 : 'text-muted hover:text-ink'}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full bg-current transition-opacity ${on ? 'opacity-100' : 'opacity-25'}`} />
+                  {d}
+                </motion.button>
+              )
+            })}
+          </div>
+
+          {/* Input fields */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <PairField
+              value={f.pair}
+              onChange={handlePairChange}
+              onSelect={handlePairSelect}
+              symbols={symbols}
+            />
+
+            <Field id="f-risk" label="Risk"
+                   hint={f.riskPct === '' ? `default ${account?.default_risk_pct ?? 2}%` : undefined}
+                   suffix="%" type="text" inputMode="decimal"
+                   value={f.riskPct} onChange={set('riskPct')}
+                   placeholder={String(account?.default_risk_pct ?? 2)} />
+
+            <Field id="f-entry" label="Entry price"
+                   hint={priceHint ?? undefined}
+                   action={
+                     <button type="button"
+                       onClick={handleManualRefresh}
+                       disabled={priceFetcher.loading || !f.pair.trim()}
+                       aria-label="Fetch live price from Bitget"
+                       className="text-blueInk/70 hover:text-blueInk cursor-pointer
+                                  disabled:opacity-35 disabled:cursor-not-allowed
+                                  rounded p-0.5 transition
+                                  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue">
+                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"
+                            className={priceFetcher.loading ? 'animate-spin' : ''}>
+                         <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+                         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                       </svg>
+                     </button>
+                   }
+                   type="text" inputMode="decimal"
+                   value={f.entry} onChange={handleEntryChange}
+                   placeholder="0.00" />
+
+            <Field id="f-sl" label="Stop loss"
+                   type="text" inputMode="decimal"
+                   value={f.sl} onChange={set('sl')} placeholder="0.00" />
+
+            <Field id="f-tp" label="Take profit" hint="optional"
+                   type="text" inputMode="decimal"
+                   value={f.tp} onChange={set('tp')} placeholder="0.00" />
+          </div>
+
+          {/* Leverage */}
+          <div className="rounded-[12px] border border-[#F2BE00]/60 px-3.5 py-3"
+               style={{ background: 'rgba(255,255,255,0.5)' }}>
+            <div className="flex justify-between items-center mb-2.5">
+              <label htmlFor="leverage-slider"
+                     className="text-[10.5px] font-[700] uppercase tracking-[.07em] text-muted">
+                Leverage
+              </label>
+              <span className="hero-num font-[700] text-[20px] text-ink tnum leading-none">
+                {f.leverage}<span className="text-[12px] font-[600] text-muted/70">×</span>
+              </span>
+            </div>
+            <input id="leverage-slider" type="range" min="1" max="100"
+                   value={f.leverage} onChange={set('leverage')}
+                   aria-label={`Leverage: ${f.leverage}×`} />
+            <div className="flex justify-between mt-1.5 text-[10px] font-[500] text-muted/45">
+              <span>1×</span><span>25×</span><span>50×</span><span>75×</span><span>100×</span>
+            </div>
+          </div>
+
+          {/* Inline notices */}
+          <div className="flex flex-col gap-2">
+            <Warnings warnings={c.warnings} />
+            {priceFetcher.error && (
+              <div className="text-[11.5px] text-muted/75 flex items-center gap-1.5 py-0.5">
+                <span className="text-tight shrink-0 font-[600]">!</span>
+                <span>{priceFetcher.error}</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* ── Inputs ── */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2">
-            <Field id="f-pair" label="Pair"
-                   value={f.pair} onChange={handlePairChange}
-                   autoComplete="off" placeholder="e.g. BTCUSDT" />
+        {/* ── Col 2: Tiles + Gauge + Log ── */}
+        <div className="px-5 pt-4 pb-5 flex flex-col gap-3">
+
+          {/* Tile grid */}
+          <div className="grid grid-cols-2 gap-2">
+            {/* Quantity — hero, floats directly on yellow */}
+            <div className="col-span-2 pb-3 mb-1 flex items-center justify-between"
+                 style={{ borderBottom: '1.5px solid rgba(242,190,0,.7)' }}>
+              <div>
+                <div className="text-[9.5px] font-[700] uppercase tracking-[.09em] mb-1"
+                     style={{ color: 'rgba(14,42,71,.55)' }}>
+                  Quantity to enter
+                </div>
+                <div className="hero-num font-[700] text-[26px] leading-none tnum"
+                     style={{ color: '#0E2A47' }}>
+                  {parsedEntry > 0 && c.coins > 0 ? fmt(Math.round(c.coins), 0) : '—'}
+                  {parsedEntry > 0 && c.coins > 0 && (
+                    <span className="text-[14px] font-[600] ml-2" style={{ color: 'rgba(14,42,71,.5)' }}>
+                      {sym || 'COIN'}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+                   stroke="rgba(14,42,71,.2)" strokeWidth="1.5" strokeLinecap="round">
+                <rect x="2" y="7" width="20" height="14" rx="2"/>
+                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+              </svg>
+            </div>
+
+            {/* Support tiles — cream chips, navy text */}
+            <Tile label="Position value" bg="rgba(255,255,255,0.5)" textColor="#0E2A47">
+              <Num value={c.position} prefix="$" />
+            </Tile>
+            <Tile label="Margin required" bg="rgba(255,255,255,0.5)" textColor="#0E2A47">
+              <Num value={c.margin} prefix="$" />
+            </Tile>
+            <Tile label="Max loss at stop" bg="rgba(255,255,255,0.5)" textColor="#0E2A47">
+              <Num value={c.risk} prefix="$" />
+            </Tile>
+            <Tile label="Reward / risk" bg="rgba(255,255,255,0.5)" textColor="#0E2A47">
+              <span><Num value={c.rr} /></span>
+              <span className="text-[12px] font-[600] ml-1" style={{ color: 'rgba(14,42,71,.45)' }}>R</span>
+            </Tile>
           </div>
 
-          <Field id="f-risk" label="Risk"
-                 hint={f.riskPct === '' ? `default ${account?.default_risk_pct ?? 2}%` : undefined}
-                 suffix="%" type="text" inputMode="decimal"
-                 value={f.riskPct} onChange={set('riskPct')}
-                 placeholder={String(account?.default_risk_pct ?? 2)} />
+          {/* Gauge — cream inset biar track/marker kebaca di atas kuning */}
+          <div style={{ background: 'rgba(255,255,255,0.5)', borderRadius: '16px' }}>
+            <LiquidationGauge slPct={c.slPct} liqMovePct={c.liqMovePct} verdict={c.verdict} leverage={f.leverage} />
+          </div>
 
-          <Field id="f-entry" label="Entry price"
-                 hint={priceHint ?? undefined}
-                 action={
-                   <button type="button"
-                     onClick={handleManualRefresh}
-                     disabled={priceFetcher.loading || !f.pair.trim()}
-                     aria-label="Fetch live price from Bitget"
-                     className="text-blueInk/70 hover:text-blueInk cursor-pointer
-                                disabled:opacity-35 disabled:cursor-not-allowed
-                                rounded p-0.5 transition
-                                focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue">
-                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                          stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"
-                          className={priceFetcher.loading ? 'animate-spin' : ''}>
-                       <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
-                       <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-                     </svg>
-                   </button>
-                 }
-                 type="text" inputMode="decimal"
-                 value={f.entry} onChange={handleEntryChange}
-                 placeholder="0.00" />
+          {/* Log trade */}
+          <div className="mt-auto flex flex-col gap-1.5">
+            {!canLog && (parsedEntry <= 0 || f.entry !== '') && (
+              <p className="text-center text-[11.5px] text-muted m-0">
+                Enter entry price and stop loss first.
+              </p>
+            )}
+            <motion.button
+              onClick={log}
+              disabled={!canLog}
+              whileHover={reduced || !canLog ? {} : { scale: 1.015 }}
+              whileTap={reduced || !canLog ? {} : { scale: 0.97 }}
+              style={{ background: canLog ? '#0E2A47' : 'rgba(255,255,255,.45)' }}
+              className={`w-full h-12 rounded-full font-sans font-[700] text-[14.5px]
+                           flex items-center justify-center gap-2 transition-all
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-yellow
+                           ${canLog
+                             ? 'cursor-pointer text-yellow shadow-[0_4px_20px_-6px_rgba(14,42,71,.5)]'
+                             : 'cursor-not-allowed text-muted'}`}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   strokeWidth="2.8" strokeLinecap="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Log trade
+            </motion.button>
+          </div>
 
-          <Field id="f-sl" label="Stop loss"
-                 type="text" inputMode="decimal"
-                 value={f.sl} onChange={set('sl')} placeholder="0.00" />
-
-          <Field id="f-tp" label="Take profit" hint="optional"
-                 type="text" inputMode="decimal"
-                 value={f.tp} onChange={set('tp')} placeholder="0.00" />
         </div>
 
-        {/* ── Leverage ── */}
-        <div className="bg-paper border border-line rounded-[14px] px-4 py-4">
-          <div className="flex justify-between items-center mb-3">
-            <label htmlFor="leverage-slider"
-                   className="text-[11px] font-[600] uppercase tracking-wide text-muted">
-              Leverage
-            </label>
-            <span className="hero-num font-[700] text-[22px] text-ink tnum">
-              {f.leverage}<span className="text-[14px] font-[600] text-muted">×</span>
-            </span>
-          </div>
-          <input id="leverage-slider" type="range" min="1" max="100"
-                 value={f.leverage} onChange={set('leverage')}
-                 aria-label={`Leverage: ${f.leverage}×`} />
-          <div className="flex justify-between mt-2 text-[11px] text-muted/55">
-            <span>1×</span><span>25×</span><span>50×</span><span>75×</span><span>100×</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Inline notices ── */}
-      <div className="px-6 pt-2 flex flex-col gap-2">
-        <Warnings warnings={c.warnings} />
-
-        {priceFetcher.error && (
-          <div className="text-[12px] text-muted/80 flex items-center gap-1.5 py-1">
-            <span className="text-tight shrink-0">!</span>
-            <span>{priceFetcher.error}</span>
-          </div>
-        )}
-      </div>
-
-      {/* ── Result tiles ── */}
-      <div className="px-6 pt-3 pb-3 grid grid-cols-2 gap-2.5">
-        <Tile label="Quantity to enter" bg="#D0EDFB" border="#2BB5EF" wide>
-          <span className="text-blueInk">
-            {parsedEntry > 0 && c.coins > 0 ? fmt(Math.round(c.coins), 0) : '—'}
-          </span>
-          {parsedEntry > 0 && c.coins > 0 && (
-            <span className="text-[13px] font-[600] text-muted ml-1.5">{sym || 'COIN'}</span>
-          )}
-        </Tile>
-        <Tile label="Position value" bg="#EDE9FE" border="#7C3AED">
-          <Num value={c.position} prefix="$" />
-        </Tile>
-        <Tile label="Margin required" bg="#FFF0A8" border="#D97706">
-          <Num value={c.margin} prefix="$" />
-        </Tile>
-        <Tile label="Max loss at stop" bg="#FEE2E2" border="#DC2626">
-          <span className="text-loss"><Num value={c.risk} prefix="$" /></span>
-        </Tile>
-        <Tile label="Reward / risk" bg="#DCFCE7" border="#16A34A" wide>
-          <span className="text-profit"><Num value={c.rr} /></span>
-          <span className="text-[13px] font-[600] text-muted ml-1.5">R</span>
-        </Tile>
-      </div>
-
-      {/* ── Gauge ── */}
-      <div className="px-6 pb-4">
-        <LiquidationGauge slPct={c.slPct} liqMovePct={c.liqMovePct} verdict={c.verdict} leverage={f.leverage} />
-      </div>
-
-      {/* ── Log trade CTA ── */}
-      <div className="px-6 pb-6">
-        {!canLog && (parsedEntry <= 0 || f.entry !== '') && (
-          <p className="text-center text-[12px] text-muted mb-2">
-            Enter an entry price and stop loss first.
-          </p>
-        )}
-        <motion.button
-          onClick={log}
-          disabled={!canLog}
-          whileHover={reduced || !canLog ? {} : { scale: 1.01 }}
-          whileTap={reduced || !canLog ? {} : { scale: 0.97 }}
-          className={`w-full h-12 rounded-full font-sans font-[700] text-[15px]
-                       flex items-center justify-center gap-2 transition-all
-                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow focus-visible:ring-offset-2
-                       ${canLog
-                         ? 'cursor-pointer bg-yellow text-ink hover:bg-yellowDeep shadow-[0_4px_18px_-6px_rgba(255,212,59,.7)]'
-                         : 'cursor-not-allowed bg-line text-muted'}`}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               strokeWidth="2.8" strokeLinecap="round">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          Log trade
-        </motion.button>
       </div>
     </motion.section>
   )

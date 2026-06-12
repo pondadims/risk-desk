@@ -21,9 +21,10 @@ export default {
         yellow:     '#FFD43B',
         yellowDeep: '#F2BE00',
         yellowSoft: '#FFF0A8',
-        // hero gradient ends
+        // hero
         heroFrom:   '#0E2A47',
         heroTo:     '#0A3A6B',
+        heroBg:     '#0C2340',
         // direction
         long:       '#1FA8E8',
         short:      '#F55C7A',
@@ -42,7 +43,7 @@ export default {
         sans:    ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       maxWidth: {
-        page: '1320px',
+        page: '1380px',
       },
       borderRadius: {
         card:   '20px',
@@ -53,6 +54,7 @@ export default {
         cardHover: '0 1px 3px rgba(14,42,71,.08), 0 20px 40px -14px rgba(14,42,71,.22)',
         input:     '0 1px 2px rgba(14,42,71,.04)',
         hero:      '0 8px 40px -8px rgba(10,42,107,.45)',
+        tile:      '0 1px 3px rgba(14,42,71,.08)',
       },
     },
   },

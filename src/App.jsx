@@ -140,10 +140,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-10">
-        <Header account={account} stats={stats} onOpenSettings={() => setShowSettings(true)} />
+      <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="pt-5 sm:pt-6">
+          <Header account={account} stats={stats} onOpenSettings={() => setShowSettings(true)} />
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[5fr_7fr] gap-5 items-start pb-10">
+        <div className="flex flex-col gap-5 pb-10">
           <Calculator account={account} onLog={handleLog} />
           <Journal
             trades={trades} stats={stats}

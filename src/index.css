@@ -7,7 +7,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #F0F7FD;
+  background-color: #FFFFFF;
   color: #0E2A47;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -15,38 +15,29 @@ body {
   overflow-x: hidden;
 }
 
-/* ── Ambient depth blobs ─────────────────────────── */
-body::before,
-body::after {
-  content: '';
-  position: fixed;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  filter: blur(90px);
-  opacity: 0.45;
-}
-body::before {
-  width: 680px; height: 520px;
-  top: -120px; right: -80px;
-  background: radial-gradient(circle, #7DCEF5 0%, #2BB5EF 55%, transparent 75%);
-  opacity: 0.18;
-}
-body::after {
-  width: 500px; height: 420px;
-  bottom: 80px; left: -100px;
-  background: radial-gradient(circle, #FFD43B 0%, #FFB800 60%, transparent 78%);
-  opacity: 0.10;
-}
-
-/* Everything sits above the blobs */
 #root { position: relative; z-index: 1; }
 
 @layer utilities {
   .tnum { font-variant-numeric: tabular-nums; }
+
   .hero-num {
     font-family: 'Bricolage Grotesque', sans-serif;
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Outlined / hollow display number — Wise-style signature treatment.
+     Use only for the single largest number on the page (hero balance). */
+  .outlined {
+    color: transparent;
+    -webkit-text-stroke: 2.5px #ffffff;
+    paint-order: stroke fill;
+  }
+
+  /* Softer outlined variant for smaller display moments */
+  .outlined-sm {
+    color: transparent;
+    -webkit-text-stroke: 1.5px currentColor;
+    paint-order: stroke fill;
   }
 }
 
@@ -58,12 +49,12 @@ input[type='range'] {
   height: 6px;
   border-radius: 6px;
   outline: none;
-  background: linear-gradient(90deg, #2BB5EF, #FFD43B);
+  background: #2BB5EF;
   cursor: pointer;
 }
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 24px; height: 24px; border-radius: 50%;
+  width: 22px; height: 22px; border-radius: 50%;
   background: #fff;
   border: 3px solid #0A78BE;
   cursor: pointer;
@@ -71,10 +62,10 @@ input[type='range']::-webkit-slider-thumb {
   transition: transform 0.12s ease;
 }
 input[type='range']:active::-webkit-slider-thumb {
-  transform: scale(1.2);
+  transform: scale(1.18);
 }
 input[type='range']::-moz-range-thumb {
-  width: 24px; height: 24px; border-radius: 50%;
+  width: 22px; height: 22px; border-radius: 50%;
   background: #fff;
   border: 3px solid #0A78BE;
   cursor: pointer;
@@ -88,14 +79,8 @@ input[type='number'] { -moz-appearance: textfield; }
 
 /* ── Scrollbar ───────────────────────────────────── */
 ::-webkit-scrollbar { height: 6px; width: 6px; }
-::-webkit-scrollbar-track { background: #F0F7FD; }
+::-webkit-scrollbar-track { background: #FFFFFF; }
 ::-webkit-scrollbar-thumb { background: #B8D8F0; border-radius: 6px; }
-
-/* ── Bottom-sheet slide-up ───────────────────────── */
-@keyframes slideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to   { transform: translateY(0);   opacity: 1; }
-}
 
 /* ── Reduced motion ──────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {

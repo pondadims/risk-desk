@@ -10,7 +10,12 @@
       "Bash(Get-ChildItem -Recurse -Path \"D:\\\\Documents\\\\project\\\\risk-desk\" -Force)",
       "Bash(Select-Object FullName)",
       "Bash(Sort-Object FullName)",
-      "Bash(npm test *)"
+      "Bash(npm test *)",
+      "Bash(npm run *)",
+      "Bash(npx vitest *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
