@@ -1,0 +1,29 @@
+{
+  "name": "risk-desk",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Futures position-sizing calculator + trade journal",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:init": "node scripts/init-db.js"
+  },
+  "dependencies": {
+    "framer-motion": "^12.40.0",
+    "pg": "^8.12.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
+    "vite": "^5.3.5",
+    "vitest": "^2.1.9"
+  }
+}

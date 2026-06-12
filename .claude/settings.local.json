@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"D:\\\\Documents\\\\project\\\\risk-desk\\\\backend\\\\src\\\\routes\")",
+      "Bash(mkdir -p \"D:\\\\Documents\\\\project\\\\risk-desk\\\\frontend\\\\src\\\\lib\")",
+      "Bash(mkdir -p \"D:\\\\Documents\\\\project\\\\risk-desk\\\\frontend\\\\src\\\\api\")",
+      "Bash(mkdir -p \"D:\\\\Documents\\\\project\\\\risk-desk\\\\frontend\\\\src\\\\components\")",
+      "Bash(mkdir -p \"D:\\\\Documents\\\\project\\\\risk-desk\\\\frontend\\\\src\\\\hooks\")",
+      "PowerShell(New-Item *)",
+      "Bash(Get-ChildItem -Recurse -Path \"D:\\\\Documents\\\\project\\\\risk-desk\" -Force)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)",
+      "Bash(npm test *)"
+    ]
+  }
+}
