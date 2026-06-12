@@ -139,7 +139,7 @@ export default function App() {
   }, [trades, notify])
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ink">
       <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-8">
         <div className="pt-5 sm:pt-6">
           <Header account={account} stats={stats} onOpenSettings={() => setShowSettings(true)} />
