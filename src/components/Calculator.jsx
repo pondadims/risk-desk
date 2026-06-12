@@ -80,21 +80,25 @@ function Field({ label, hint, suffix, id, action, ...props }) {
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id}
-        className="text-[10.5px] font-[600] uppercase tracking-[.07em] text-muted flex justify-between items-center">
+        className="text-[10.5px] font-[600] uppercase tracking-[.07em] flex justify-between items-center"
+        style={{ color: 'rgba(14,42,71,.68)' }}>
         <span>{label}</span>
         <span className="flex items-center gap-1.5">
-          {hint && <span className="normal-case tracking-normal font-[500] text-muted/55">{hint}</span>}
+          {hint && <span className="normal-case tracking-normal font-[500]"
+                         style={{ color: 'rgba(14,42,71,.5)' }}>{hint}</span>}
           {action}
         </span>
       </label>
       <div className="relative">
         <input id={id} {...props}
-          className="w-full h-10 bg-white border border-line rounded-[10px] text-ink font-sans font-[600] text-[14px]
+          className="w-full h-10 bg-white rounded-[10px] text-ink font-sans font-[600] text-[14px]
                      px-3 shadow-input outline-none transition
-                     focus:border-blue focus:ring-2 focus:ring-blue/20
-                     placeholder:text-muted/30" />
+                     focus:ring-2 focus:ring-[rgba(14,42,71,.15)]
+                     placeholder:text-[rgba(14,42,71,.4)]"
+          style={{ border: '1.5px solid #0E2A47' }} />
         {suffix && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted text-[11.5px] pointer-events-none">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11.5px] pointer-events-none"
+                style={{ color: 'rgba(14,42,71,.55)' }}>
             {suffix}
           </span>
         )}
@@ -173,10 +177,11 @@ function PairField({ value, onChange, onSelect, symbols }) {
           onChange={(e) => { onChange(e.target.value); setOpen(true); setActive(-1) }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          className="w-full h-10 bg-white border border-line rounded-[10px] text-ink font-sans font-[600] text-[14px]
+          className="w-full h-10 bg-white rounded-[10px] text-ink font-sans font-[600] text-[14px]
                      px-3 shadow-input outline-none transition
-                     focus:border-blue focus:ring-2 focus:ring-blue/20
-                     placeholder:text-muted/30"
+                     focus:ring-2 focus:ring-[rgba(14,42,71,.15)]
+                     placeholder:text-[rgba(14,42,71,.4)]"
+          style={{ border: '1.5px solid #0E2A47' }}
         />
         {showDropdown && (
           <ul
@@ -197,7 +202,7 @@ function PairField({ value, onChange, onSelect, symbols }) {
                 onMouseEnter={() => setActive(i)}
                 className={`flex items-center justify-between px-3.5 py-2.5 cursor-pointer
                              font-sans text-[13.5px] select-none
-                             ${i === active ? 'bg-blueSoft text-blueInk' : 'text-ink hover:bg-paper'}`}
+                             ${i === active ? 'bg-[rgba(14,42,71,.08)] text-ink' : 'text-ink hover:bg-paper'}`}
               >
                 <span className="font-[700]">{s.symbol}</span>
                 <span className="text-muted text-[11.5px]">{s.baseCoin}</span>
@@ -215,9 +220,8 @@ function Tile({ label, children, bg, textColor, wide }) {
     <div
       className={`rounded-[12px] px-3.5 py-3 ${wide ? 'col-span-2' : ''}`}
       style={{
-        background: bg,
-        border: '1px solid rgba(14,42,71,0.10)',
-        boxShadow: '0 1px 4px rgba(14,42,71,.14)',
+        background: 'transparent',
+        border: '1.5px solid #0E2A47',
       }}>
       <div className="text-[9.5px] font-[700] uppercase tracking-[.08em] mb-1"
            style={{ color: textColor ? `${textColor}B3` : 'rgba(14,42,71,.5)' }}>
@@ -363,8 +367,8 @@ export default function Calculator({ account, onLog }) {
       <div className="px-5 pt-5 pb-3.5 border-b border-line flex items-center justify-between">
         <h2 className="font-display font-[700] text-[15px] text-ink2 m-0">Position size</h2>
         <div className="flex items-center gap-1.5 rounded-full px-2.5 py-1"
-             style={{ background: 'rgba(255,255,255,0.5)' }}>
-          <span className="text-[10.5px] font-[600] text-muted">from</span>
+             style={{ background: 'transparent', border: '1.5px solid #0E2A47' }}>
+          <span className="text-[10.5px] font-[600]" style={{ color: 'rgba(14,42,71,.55)' }}>from</span>
           <span className="hero-num font-[700] text-[13.5px] text-ink tnum">{money(balance)}</span>
         </div>
       </div>
@@ -375,8 +379,8 @@ export default function Calculator({ account, onLog }) {
         {/* ── Col 1: Inputs ── */}
         <div className="px-5 pt-4 pb-5 space-y-3">
           {/* Direction toggle */}
-          <div className="flex gap-1.5 p-1 rounded-[12px] border border-[#F2BE00]/60"
-               style={{ background: 'rgba(255,255,255,0.5)' }}
+          <div className="flex gap-1.5 p-1 rounded-[12px]"
+               style={{ background: 'transparent', border: '1.5px solid #0E2A47' }}
                role="group" aria-label="Trade direction">
             {['Long', 'Short'].map((d) => {
               const on = dir === d
@@ -387,9 +391,11 @@ export default function Calculator({ account, onLog }) {
                                flex items-center justify-center gap-2
                                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-1
                                ${on
-                                 ? 'bg-ink text-white shadow-[0_3px_12px_-3px_rgba(14,42,71,.4)]'
+                                 ? 'shadow-[0_3px_12px_-3px_rgba(14,42,71,.25)]'
                                  : 'hover:text-ink'}`}
-                  style={on ? {} : { color: 'rgba(14,42,71,0.55)' }}>
+                  style={on
+                    ? { background: d === 'Long' ? '#5BB16A' : '#E86A62', color: '#0E2A47' }
+                    : { color: 'rgba(14,42,71,0.55)' }}>
                   <span className={`w-1.5 h-1.5 rounded-full bg-current transition-opacity ${on ? 'opacity-100' : 'opacity-25'}`} />
                   {d}
                 </motion.button>
@@ -445,11 +451,12 @@ export default function Calculator({ account, onLog }) {
           </div>
 
           {/* Leverage */}
-          <div className="rounded-[12px] border border-[#F2BE00]/60 px-3.5 py-3"
-               style={{ background: 'rgba(255,255,255,0.5)' }}>
+          <div className="rounded-[12px] px-3.5 py-3"
+               style={{ background: 'transparent', border: '1.5px solid #0E2A47' }}>
             <div className="flex justify-between items-center mb-2.5">
               <label htmlFor="leverage-slider"
-                     className="text-[10.5px] font-[700] uppercase tracking-[.07em] text-muted">
+                     className="text-[10.5px] font-[700] uppercase tracking-[.07em]"
+                     style={{ color: 'rgba(14,42,71,.55)' }}>
                 Leverage
               </label>
               <span className="hero-num font-[700] text-[20px] text-ink tnum leading-none">
@@ -482,8 +489,8 @@ export default function Calculator({ account, onLog }) {
           {/* Tile grid */}
           <div className="grid grid-cols-2 gap-2">
             {/* Quantity — hero, floats directly on yellow */}
-            <div className="col-span-2 pb-3 mb-1 flex items-center justify-between"
-                 style={{ borderBottom: '1.5px solid rgba(242,190,0,.7)' }}>
+            <div className="col-span-2 rounded-[12px] px-3.5 py-3 flex items-center justify-between"
+                 style={{ border: '1.5px solid #0E2A47' }}>
               <div>
                 <div className="text-[9.5px] font-[700] uppercase tracking-[.09em] mb-1"
                      style={{ color: 'rgba(14,42,71,.55)' }}>
@@ -523,14 +530,14 @@ export default function Calculator({ account, onLog }) {
           </div>
 
           {/* Gauge — cream inset biar track/marker kebaca di atas kuning */}
-          <div style={{ background: 'rgba(255,255,255,0.5)', borderRadius: '16px', border: '1px solid rgba(14,42,71,0.10)' }}>
+          <div style={{ borderRadius: '16px', border: '1.5px solid #0E2A47' }}>
             <LiquidationGauge slPct={c.slPct} liqMovePct={c.liqMovePct} verdict={c.verdict} leverage={f.leverage} />
           </div>
 
           {/* Log trade */}
           <div className="mt-auto flex flex-col gap-1.5">
             {!canLog && (parsedEntry <= 0 || f.entry !== '') && (
-              <p className="text-center text-[11.5px] text-muted m-0">
+              <p className="text-center text-[11.5px] m-0" style={{ color: 'rgba(14,42,71,.5)' }}>
                 Enter entry price and stop loss first.
               </p>
             )}
@@ -539,13 +546,15 @@ export default function Calculator({ account, onLog }) {
               disabled={!canLog}
               whileHover={reduced || !canLog ? {} : { scale: 1.015 }}
               whileTap={reduced || !canLog ? {} : { scale: 0.97 }}
-              style={{ background: canLog ? '#0E2A47' : 'rgba(255,255,255,.45)' }}
+              style={canLog
+                ? { background: '#0E2A47' }
+                : { background: 'transparent', border: '1.5px solid #0E2A47', color: 'rgba(14,42,71,.45)' }}
               className={`w-full h-12 rounded-full font-sans font-[700] text-[14.5px]
                            flex items-center justify-center gap-2 transition-all
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-yellow
                            ${canLog
                              ? 'cursor-pointer text-yellow shadow-[0_4px_20px_-6px_rgba(14,42,71,.5)]'
-                             : 'cursor-not-allowed text-muted'}`}>
+                             : 'cursor-not-allowed'}`}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                    strokeWidth="2.8" strokeLinecap="round">
                 <path d="M12 5v14M5 12h14" />
