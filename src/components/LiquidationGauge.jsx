@@ -4,9 +4,9 @@ import { fmt } from '../lib/format.js'
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v))
 
 const VERDICT_CFG = {
-  safe:   { bg: '#DCFCE7', text: '#15803D', border: '#86EFAC', icon: '✓', label: 'Safe',   copy: 'Your stop triggers first — comfortable buffer at this leverage.' },
-  tight:  { bg: '#FEF9C3', text: '#A16207', border: '#FDE047', icon: '!', label: 'Tight',  copy: 'Stop still triggers first, but only just. Consider reducing leverage.' },
-  danger: { bg: '#FEE2E2', text: '#B91C1C', border: '#FCA5A5', icon: '✕', label: 'Danger', copy: 'Liquidation hits before your stop. You lose full margin. Lower the leverage.' },
+  safe:   { bg: '#0E2A47', text: '#FFD43B', border: '#0E2A47', icon: '✓', label: 'Safe',   copy: 'Your stop triggers first — comfortable buffer at this leverage.' },
+  tight:  { bg: '#0E2A47', text: '#FFD43B', border: '#0E2A47', icon: '!', label: 'Tight',  copy: 'Stop still triggers first, but only just. Consider reducing leverage.' },
+  danger: { bg: '#DC2626', text: '#FFFFFF',  border: '#DC2626', icon: '✕', label: 'Danger', copy: 'Liquidation hits before your stop. You lose full margin. Lower the leverage.' },
 }
 
 function Marker({ pct, color, label, value, reduced }) {
@@ -37,7 +37,8 @@ export default function LiquidationGauge({ slPct, liqMovePct, verdict, leverage 
   const v = VERDICT_CFG[verdict] || VERDICT_CFG.safe
 
   return (
-    <div className="bg-paper border border-line rounded-[16px] px-4 py-4">
+    <div className="rounded-[16px] px-4 py-4"
+         style={{ background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(14,42,71,0.10)' }}>
       <div className="flex items-center justify-between mb-5">
         <span className="text-[11px] font-[600] uppercase tracking-wide text-muted">
           Liquidation vs stop
@@ -58,10 +59,18 @@ export default function LiquidationGauge({ slPct, liqMovePct, verdict, leverage 
 
       {/* track */}
       <div className="relative h-3 rounded-full mx-2 mt-9 mb-2"
-           style={{ background: 'linear-gradient(90deg, #bbf7d0 0%, #fef08a 50%, #fecaca 100%)' }}>
-        <Marker pct={0}      color="#94A3B8" label="Entry" value=""                        reduced={reduced} />
-        <Marker pct={slPos}  color="#DC2626" label="Stop"  value={fmt(slPct, 1) + '%'}     reduced={reduced} />
-        <Marker pct={liqPos} color="#0A78BE" label="Liq"   value={fmt(liqMovePct, 1) + '%'} reduced={reduced} />
+           style={{ background: 'rgba(14,42,71,0.16)' }}>
+        {/* buffer band between stop and liq */}
+        <div className="absolute top-0 h-full rounded-full"
+             style={{
+               left:  `${Math.min(slPos, liqPos)}%`,
+               width: `${Math.abs(liqPos - slPos)}%`,
+               background: '#FFD43B',
+               border: '1px solid rgba(242,190,0,0.9)',
+             }} />
+        <Marker pct={0}      color="rgba(14,42,71,.45)" label="Entry" value=""                         reduced={reduced} />
+        <Marker pct={slPos}  color="#0E2A47"            label="Stop"  value={fmt(slPct, 1) + '%'}      reduced={reduced} />
+        <Marker pct={liqPos} color="#0E2A47"            label="Liq"   value={fmt(liqMovePct, 1) + '%'} reduced={reduced} />
       </div>
 
       <p className="text-[12px] text-muted leading-relaxed mt-4 mb-0">{v.copy}</p>

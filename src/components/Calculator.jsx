@@ -216,6 +216,7 @@ function Tile({ label, children, bg, textColor, wide }) {
       className={`rounded-[12px] px-3.5 py-3 ${wide ? 'col-span-2' : ''}`}
       style={{
         background: bg,
+        border: '1px solid rgba(14,42,71,0.10)',
         boxShadow: '0 1px 4px rgba(14,42,71,.14)',
       }}>
       <div className="text-[9.5px] font-[700] uppercase tracking-[.08em] mb-1"
@@ -384,12 +385,11 @@ export default function Calculator({ account, onLog }) {
                   whileTap={reduced ? {} : { scale: 0.96 }}
                   className={`flex-1 h-10 rounded-[9px] font-sans font-[700] text-[13.5px] cursor-pointer transition-all
                                flex items-center justify-center gap-2
-                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-1
+                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-1
                                ${on
-                                 ? d === 'Long'
-                                   ? 'bg-blue text-white shadow-[0_3px_12px_-3px_rgba(43,181,239,.6)]'
-                                   : 'bg-short text-white shadow-[0_3px_12px_-3px_rgba(245,92,122,.55)]'
-                                 : 'text-muted hover:text-ink'}`}>
+                                 ? 'bg-ink text-white shadow-[0_3px_12px_-3px_rgba(14,42,71,.4)]'
+                                 : 'hover:text-ink'}`}
+                  style={on ? {} : { color: 'rgba(14,42,71,0.55)' }}>
                   <span className={`w-1.5 h-1.5 rounded-full bg-current transition-opacity ${on ? 'opacity-100' : 'opacity-25'}`} />
                   {d}
                 </motion.button>
@@ -523,7 +523,7 @@ export default function Calculator({ account, onLog }) {
           </div>
 
           {/* Gauge — cream inset biar track/marker kebaca di atas kuning */}
-          <div style={{ background: 'rgba(255,255,255,0.5)', borderRadius: '16px' }}>
+          <div style={{ background: 'rgba(255,255,255,0.5)', borderRadius: '16px', border: '1px solid rgba(14,42,71,0.10)' }}>
             <LiquidationGauge slPct={c.slPct} liqMovePct={c.liqMovePct} verdict={c.verdict} leverage={f.leverage} />
           </div>
 
